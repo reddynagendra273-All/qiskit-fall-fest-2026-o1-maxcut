@@ -1,0 +1,4 @@
+configuration,depth,total_gates,cx_gates,explicit_swap_gates,depth_overhead_percent,cx_overhead_percent
+Unrestricted,23,58,12,0,0.0,0.0
+Practice Linear,79,163,21,0,243.48,75.0
+Practice Ring,65,136,18,0,182.61,50.0
