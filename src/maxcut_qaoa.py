@@ -2,7 +2,6 @@
 # PRACTICE PROJECT ONLY — NOT OFFICIAL HACKATHON DATA
 # QAOA for Weighted Max-Cut using Qiskit
 
-import numpy as np
 from qiskit import QuantumCircuit, transpile
 from qiskit_aer import AerSimulator
 
@@ -54,15 +53,16 @@ print("\n--- CIRCUIT RESOURCE ANALYSIS ---")
 print("Total circuit depth:", compiled_qc.depth())
 print("Total gate count:", compiled_qc.size())
 print("Gate counts:", compiled_qc.count_ops())
-print("Two-qubit gate count:", sum(
-    count for gate, count in compiled_qc.count_ops().items()
-    if compiled_qc.find_bit(
-        compiled_qc.data[
-            next(i for i, item in enumerate(compiled_qc.data)
-                 if item.operation.name == gate)
-        ].qubits[0]
-    ) is not None and gate in ["rzz", "cx", "cz", "ecr", "swap"]
-))
+
+two_qubit_gates = {"rzz", "cx", "cz", "ecr", "swap"}
+
+two_qubit_count = sum(
+    count
+    for gate, count in compiled_qc.count_ops().items()
+    if gate in two_qubit_gates
+)
+
+print("Two-qubit gate count:", two_qubit_count)
 result = simulator.run(compiled_qc, shots=shots).result()
 counts = result.get_counts()
 
