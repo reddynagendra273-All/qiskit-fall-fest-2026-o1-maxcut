@@ -1,90 +1,36 @@
+# PRACTICE ONLY - NOT OFFICIAL HACKATHON DATA
+"""Display recorded practice routing metrics from a CSV file."""
 
-# PRACTICE ONLY — NOT OFFICIAL HACKATHON DATA
-# Compare QAOA circuit metrics under different connectivity constraints
+import csv
+from pathlib import Path
 
-from qiskit import QuantumCircuit, transpile
-from qiskit.transpiler import CouplingMap
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+RESULTS_FILE = PROJECT_ROOT / "results" / "tables" / "routing_analysis_results.csv"
 
-n = 5
-gamma = 0.26
-beta = 0.42
 
-edges = [
-    (0, 1, 3),
-    (0, 2, 2),
-    (1, 2, 1),
-    (1, 3, 4),
-    (2, 4, 2),
-    (3, 4, 3),
-]
+def main():
+    if not RESULTS_FILE.exists():
+        print(f"Results file not found: {RESULTS_FILE}")
+        print("Run src/routing_analysis_v2.py first.")
+        return
 
-def build_qaoa():
-    qc = QuantumCircuit(n)
+    with RESULTS_FILE.open("r", newline="", encoding="utf-8-sig") as file:
+        rows = list(csv.DictReader(file))
 
-    for q in range(n):
-        qc.h(q)
+    if not rows:
+        print("The routing results CSV is empty.")
+        return
 
-    for u, v, weight in edges:
-        qc.rzz(-gamma * weight, u, v)
+    print("PRACTICE ROUTING RESULTS")
+    print("=" * 60)
 
-    for q in range(n):
-        qc.rx(2 * beta, q)
+    for row in rows:
+        print("-" * 40)
+        for key, value in row.items():
+            print(f"{key}: {value}")
 
-    return qc
+    print("\nPractice results only; not official hardware benchmarks.")
 
-base = build_qaoa()
 
-# Use a common basis so the gate counts can be compared.
-basis = ["rz", "sx", "x", "cx"]
-
-linear_edges = [
-    (0, 1), (1, 2), (2, 3), (3, 4)
-]
-
-ring_edges = linear_edges + [(4, 0)]
-
-configs = [
-    ("Unrestricted", None),
-    ("Practice Linear", CouplingMap(couplinglist=linear_edges)),
-    ("Practice Ring", CouplingMap(couplinglist=ring_edges)),
-]
-
-print("QAOA ROUTING COMPARISON")
-print("=" * 65)
-
-for name, coupling in configs:
-    options = {
-        "basis_gates": basis,
-        "optimization_level": 0,
-        "seed_transpiler": 42,
-    }
-
-    if coupling is not None:
-        options["coupling_map"] = coupling
-        options["initial_layout"] = list(range(n))
-        options["routing_method"] = "sabre"
-
-    routed = transpile(base, **options)
-    counts = routed.count_ops()
-
-    cx_count = counts.get("cx", 0)
-    swap_count = counts.get("swap", 0)
-    two_qubit_count = sum(
-        count for gate, count in counts.items()
-        if routed.find_bit(routed.data[
-            next(i for i, item in enumerate(routed.data)
-                 if item.operation.name == gate)
-        ].qubits[0]).index >= 0
-        and gate in ("cx", "swap", "cz", "ecr", "rzz")
-    ) if False else cx_count + swap_count + counts.get("cz", 0)
-
-    print(f"\n{name}")
-    print("-" * 40)
-    print(f"Depth: {routed.depth()}")
-    print(f"Total gates: {routed.size()}")
-    print(f"CX gates: {cx_count}")
-    print(f"Explicit SWAP gates: {swap_count}")
-    print(f"Two-qubit gates (CX/SWAP/CZ): {two_qubit_count}")
-    print(f"Operations: {dict(counts)}")
-
-print("\nPractice comparison only; no hardware execution.")
+if __name__ == "__main__":
+    main()
