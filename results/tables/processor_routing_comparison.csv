@@ -1,3 +1,7 @@
-processor,physical_qubits_available,logical_qubits_used,coupling_edges,depth,total_gates,cx_count,explicit_swap_count,basis_gates,gamma,beta,status
-Processor A,5,5,4,58,102,21,0,"rz,sx,x,cx",0.1,0.3,ideal transpilation; not hardware execution
-Processor B,9,5,12,52,101,21,0,"rz,sx,x,cx",0.1,0.3,ideal transpilation; not hardware execution
+graph_id,processor,logical_qubits_required,physical_qubits_available,coupling_edges,gamma,beta,basis_gates,mapping_feasible,depth,total_gates,cx_count,explicit_swap_count,status
+graph_01,Processor A,6,5,4,0.1,0.3,"rz,sx,x,cx",False,,,,,infeasible: insufficient physical qubits for direct six-qubit mapping
+graph_01,Processor B,6,9,12,0.1,0.3,"rz,sx,x,cx",True,79,157,35,0,ideal transpilation only; not hardware execution
+graph_02,Processor A,6,5,4,0.1,0.3,"rz,sx,x,cx",False,,,,,infeasible: insufficient physical qubits for direct six-qubit mapping
+graph_02,Processor B,6,9,12,0.1,0.3,"rz,sx,x,cx",True,89,169,38,0,ideal transpilation only; not hardware execution
+graph_03,Processor A,6,5,4,0.1,0.3,"rz,sx,x,cx",False,,,,,infeasible: insufficient physical qubits for direct six-qubit mapping
+graph_03,Processor B,6,9,12,0.1,0.3,"rz,sx,x,cx",True,104,191,42,0,ideal transpilation only; not hardware execution
