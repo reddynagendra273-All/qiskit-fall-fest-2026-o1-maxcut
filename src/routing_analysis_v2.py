@@ -3,6 +3,7 @@
 # QAOA routing overhead analysis with CSV export
 
 import csv
+from pathlib import Path
 from qiskit import QuantumCircuit, transpile
 from qiskit.transpiler import CouplingMap
 
@@ -109,9 +110,8 @@ for row in rows:
         f"{row['cx_gates']:>8} "
         f"{depth_overhead:>15.2f}%"
     )
-
-filename = "results/tables/routing_analysis_results.csv"
-
+project_root = Path(__file__).resolve().parent.parent
+filename = project_root / "results" / "tables" / "routing_analysis_results.csv"
 with open(filename, "w", newline="", encoding="utf-8") as file:
     writer = csv.DictWriter(file, fieldnames=rows[0].keys())
     writer.writeheader()
