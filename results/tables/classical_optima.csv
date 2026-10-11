@@ -1,0 +1,4 @@
+graph_id,num_vertices,num_edges,classical_optimum,one_optimal_bitstring_mask_order,optimal_assignments_count,side_0_vertices,side_1_vertices,assignments_checked
+graph_01,6,10,26,011001,2,1 2 5,0 3 4,64
+graph_02,6,10,27,010101,2,1 3 5,0 2 4,64
+graph_03,6,10,24,001100,4,0 1 4 5,2 3,64
