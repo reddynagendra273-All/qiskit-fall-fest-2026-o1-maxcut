@@ -69,15 +69,12 @@ for name, coupling in configs:
 
     cx_count = counts.get("cx", 0)
     swap_count = counts.get("swap", 0)
+    two_qubit_gates = {"cx", "swap", "cz", "ecr", "rzz"}
     two_qubit_count = sum(
-        count for gate, count in counts.items()
-        if routed.find_bit(routed.data[
-            next(i for i, item in enumerate(routed.data)
-                 if item.operation.name == gate)
-        ].qubits[0]).index >= 0
-        and gate in ("cx", "swap", "cz", "ecr", "rzz")
-    ) if False else cx_count + swap_count + counts.get("cz", 0)
-
+        count
+        for gate, count in counts.items()
+        if gate in two_qubit_gates
+    )
     print(f"\n{name}")
     print("-" * 40)
     print(f"Depth: {routed.depth()}")
