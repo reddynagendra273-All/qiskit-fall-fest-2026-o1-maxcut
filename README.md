@@ -123,17 +123,41 @@ python -m pip install -r requirements.txt
 
 ### Run the Experiments
 
-Run these commands from the project root:
+Run these commands from the project root.
+
+**1. Run the core experiments**
 
 ```powershell
 python src\maxcut_classical.py
 python src\maxcut_qaoa.py
 python src\optimize_qaoa.py
 python src\validate_qaoa.py
+```
+
+**2. Run the routing analysis**
+
+```powershell
 python src\routing_analysis_v2.py
 ```
 
-The scripts generate practice outputs and routing metrics according to their implementation.
+This experiment compares unrestricted, linear, and ring connectivity configurations and saves the routing metrics to `results/tables/routing_analysis_results.csv`.
+
+**3. View the saved routing results (optional)**
+
+Run this after the routing analysis:
+
+```powershell
+python src\routing_comparison.py
+```
+
+**4. Run additional comparisons (optional)**
+
+```powershell
+python src\creating_comparison.py
+python src\swap_analysis.py
+```
+
+These scripts provide additional practice analyses. Results are simulator and transpiler outputs, not official hardware benchmarks.
 
 ## 🔬 Reproducibility and Limitations
 
