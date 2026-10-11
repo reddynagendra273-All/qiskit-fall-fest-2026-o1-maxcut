@@ -1,5 +1,5 @@
-
-# PRACTICE ONLY — NOT OFFICIAL HACKATHON DATA
+﻿
+# PRACTICE ONLY â€” NOT OFFICIAL HACKATHON DATA
 # Validate the best p=1 QAOA parameters
 
 from qiskit import QuantumCircuit
@@ -16,7 +16,7 @@ edges = [
 
 n = 5
 gamma = 0.26
-beta = 0.42
+beta = 0.38
 shots = 10000
 
 simulator = AerSimulator()
@@ -68,3 +68,4 @@ print(f"Best bitstring: {best_bitstring}")
 print(f"Best observed cut: {best_cut}")
 print("Classical optimum: 13")
 print("Practice simulator results only.")
+
