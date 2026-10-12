@@ -1,105 +1,128 @@
-﻿# ⚛️ NexGen Minds | QAOA Max-Cut Optimization
+﻿# NexGen Minds | QAOA Max-Cut Optimization
 
-**Qiskit Fall Fest SRMAP 2026 — Quantum Optimization Practice Project**
+**Qiskit Fall Fest SRMAP 2026 — PS-O1: Max-Cut on Weighted Graphs**
 
-Exploring the **Quantum Approximate Optimization Algorithm (QAOA)** to solve the weighted Max-Cut problem and investigate how quantum circuit connectivity affects circuit depth and gate overhead.
+This project explores the Quantum Approximate Optimization Algorithm (QAOA) for solving weighted Max-Cut problems and investigates how processor connectivity affects quantum circuit transpilation.
 
-> **Project status:** Practice simulations only. The results below are not official hackathon processor benchmarks.
+**Project Status:** Practice simulations and ideal transpilation experiments. No actual quantum hardware measurements are claimed.
 
-## 🎯 Project Objectives
+## Project Objectives
 
-* Solve a weighted Max-Cut problem using a classical baseline.
-* Construct and simulate QAOA circuits.
-* Explore QAOA parameter selection and validation.
-* Compare circuit routing metrics for linear and ring connectivity.
-* Analyze circuit depth, CX gates, total gates, and explicit SWAP gates.
+* Compute exact classical Max-Cut solutions using brute force.
+* Construct and simulate p=1 QAOA circuits.
+* Explore parameter selection using a coarse parameter grid.
+* Compare circuit metrics for the specified Processor A and Processor B architectures.
+* Analyze circuit depth, total gate count, CX count, and explicit SWAP count.
 
-## 🧩 Problem Graph
+## Dataset and Classical Results
 
-The practice graph contains five vertices and six weighted edges.
+The practice dataset contains three weighted graphs, each with six vertices and integer edge weights. These are team-created examples and are not official fixed benchmark instances.
 
-| Edge | Weight |
-| ---- | -----: |
-| A–B  |      3 |
-| A–C  |      2 |
-| B–C  |      1 |
-| B–D  |      4 |
-| C–E  |      2 |
-| D–E  |      3 |
+| Graph    | Classical Optimum | Optimal Assignments | Assignments Checked |
+| -------- | ----------------: | ------------------: | ------------------: |
+| graph_01 |                26 |                   2 |                  64 |
+| graph_02 |                27 |                   2 |                  64 |
+| graph_03 |                24 |                   4 |                  64 |
 
-**Classical brute-force optimum: 13**
+The graph definitions are stored in `data/raw/maxcut_instances.json`.
 
-The optimum is the maximum total weight of edges crossing between the two vertex groups.
+The exact classical results are stored in `results/tables/classical_optima.csv`.
 
-### Graph Visualization
+The classical optimum is the maximum total weight of edges crossing between the two vertex groups.
 
-![Weighted Max-Cut practice graph](results/figures/maxcut_graph.png)
+## QAOA Parameter Search
 
-## ⚙️ Workflow
+The parameter-grid search evaluates 32 combinations per graph, using 2,048 shots and simulator seed 42. The reported parameters are the best candidates within the tested grid, selected by average cut weight. They are not guaranteed to be globally optimal.
 
-1. **Classical baseline** — calculate the optimal cut using brute force.
-2. **QAOA construction** — build a parameterized quantum circuit.
-3. **Simulation and validation** — evaluate the circuit using Qiskit.
-4. **Routing analysis** — transpile circuits for illustrative connectivity architectures.
-5. **Metric comparison** — record depth, CX count, total gates, and explicit SWAP count.
+| Graph    | Classical Optimum | Average Cut Weight | Average Approximation Ratio | Optimal-Cut Probability |
+| -------- | ----------------: | -----------------: | --------------------------: | ----------------------: |
+| graph_01 |                26 |            19.3081 |                      0.7426 |                0.135742 |
+| graph_02 |                27 |            19.1533 |                      0.7094 |                0.125977 |
+| graph_03 |                24 |            19.2256 |                      0.8011 |                0.183105 |
 
-## 📊 Practice Routing Results
+The complete parameter-search results are available in `results/tables/qaoa_optimization.csv`.
 
-| Metric              | Linear Connectivity | Ring Connectivity |
-| ------------------- | ------------------: | ----------------: |
-| Circuit depth       |                  79 |                65 |
-| Total gates         |                 163 |               136 |
-| CX gates            |                  21 |                18 |
-| Explicit SWAP gates |                   0 |                 0 |
+The fixed-parameter simulation results are available in `results/tables/qaoa_dataset_results.csv`.
 
-### Key Observation
+The average approximation ratio is calculated by dividing the average sampled cut weight by the exact classical optimum.
 
-Compared with the linear connectivity experiment, the ring experiment recorded:
+## Processor A and Processor B Architecture Analysis
 
-* **17.72% lower circuit depth**
-* **14.29% fewer CX gates**
-* **16.56% fewer total gates**
+The processor definitions are stored in `processors/processor_A.json` and `processors/processor_B.json`.
 
-These figures describe the recorded practice experiments only. They do not establish that ring connectivity will outperform a real processor under all workloads.
+| Processor   | Physical Qubits | Coupling Edges                                                                     |
+| ----------- | --------------: | ---------------------------------------------------------------------------------- |
+| Processor A |               5 | (0,1), (1,2), (1,3), (3,4)                                                         |
+| Processor B |               9 | (0,1), (1,2), (1,6), (2,3), (2,6), (2,5), (3,4), (4,5), (5,6), (6,7), (6,8), (8,0) |
 
-**Routing caveat:** The transpiler decomposes operations into the selected basis gates. Therefore, zero explicit SWAP gates in the final circuit does not mean routing added no overhead. CX count is used as a routing-cost proxy, not as an exact SWAP count.
+Each graph requires six logical qubits. Processor A has only five physical qubits, so a direct one-to-one mapping of all six logical qubits is infeasible. Processor B has enough physical qubits for such a mapping.
 
-## 📁 Project Structure
+### Processor B Transpilation Results
+
+| Graph    | Circuit Depth | Total Gates | CX Count | Explicit SWAP Count |
+| -------- | ------------: | ----------: | -------: | ------------------: |
+| graph_01 |            79 |         157 |       35 |                   0 |
+| graph_02 |            89 |         169 |       38 |                   0 |
+| graph_03 |           104 |         191 |       42 |                   0 |
+
+These values are results from the current ideal transpilation setup, not quantum hardware measurements.
+
+A zero explicit SWAP count does not prove that routing added no overhead. Routing effects can be reflected in the decomposed gate sequence and other circuit metrics. CX count is not an exact SWAP count.
+
+The detailed processor comparison is stored in `results/tables/processor_routing_comparison.csv`.
+
+The consolidated benchmark results are stored in `results/tables/consolidated_benchmark.csv`.
+
+**Noise Model Note:** Processor noise parameters have not been verified in this repository. Any noise-aware comparison must use the definitions supplied in the official Challenge Kit.
+
+## Figures and Visualizations
+
+The repository includes the following figures:
+
+* `results/figures/maxcut_graph.png` — visualization of a practice Max-Cut graph.
+* `results/figures/qaoa_approximation_ratios.png` — comparison of QAOA approximation ratios.
+* `results/figures/processor_b_circuit_cost.png` — comparison of Processor B circuit-cost metrics.
+
+## Project Structure
 
 ```text
 maxcut-practice/
-├── src/
-│   ├── creating_comparison.py
-│   ├── maxcut_classical.py
-│   ├── maxcut_qaoa.py
-│   ├── optimize_qaoa.py
-│   ├── routing_analysis_v2.py
-│   ├── routing_comparison.py
-│   ├── swap_analysis.py
-│   └── validate_qaoa.py
+├── data/
+│   └── raw/
+│       └── maxcut_instances.json
+├── processors/
+│   ├── processor_A.json
+│   └── processor_B.json
 ├── results/
 │   ├── figures/
-│   │   └── maxcut_graph.png
 │   └── tables/
-│       ├── routing_analysis_results.csv
-│       └── swap_results.txt
+├── src/
+│   ├── maxcut_classical.py
+│   ├── maxcut_qaoa.py
+│   ├── optimize_dataset_qaoa.py
+│   ├── qaoa_dataset_benchmark.py
+│   ├── processor_routing_benchmark.py
+│   ├── consolidate_results.py
+│   └── plot_benchmark_results.py
 ├── requirements.txt
-├── README.md
-└── .gitignore
+└── README.md
 ```
 
-## 🚀 Getting Started
+Additional practice scripts and result files are included in the repository.
 
-### Requirements
+## Requirements
 
-* Python version compatible with the installed Qiskit dependencies
+The current working environment uses Python 3.14.7, Qiskit 2.5.2, and Qiskit Aer 0.17.2. Other software versions may produce different results.
+
+The project dependencies are listed in `requirements.txt`:
+
 * Qiskit
 * Qiskit Aer
 * NumPy
 * Matplotlib
 * NetworkX
 
-### Installation
+## Installation
 
 Clone the repository and enter the project directory:
 
@@ -115,65 +138,44 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-Install dependencies:
+Install the required dependencies:
 
 ```powershell
 python -m pip install -r requirements.txt
 ```
 
-### Run the Experiments
+If a virtual environment already exists, use its Python executable directly instead of creating another one.
 
-Run these commands from the project root.
+## Running the Dataset Benchmark
 
-**1. Run the core experiments**
-
-```powershell
-python src\maxcut_classical.py
-python src\maxcut_qaoa.py
-python src\optimize_qaoa.py
-python src\validate_qaoa.py
-```
-
-**2. Run the routing analysis**
+Run the following commands from the repository root in PowerShell:
 
 ```powershell
-python src\routing_analysis_v2.py
+.\.venv\Scripts\python.exe src\maxcut_classical.py
+.\.venv\Scripts\python.exe src\qaoa_dataset_benchmark.py
+.\.venv\Scripts\python.exe src\optimize_dataset_qaoa.py
+.\.venv\Scripts\python.exe src\processor_routing_benchmark.py
+.\.venv\Scripts\python.exe src\consolidate_results.py
+.\.venv\Scripts\python.exe src\plot_benchmark_results.py
 ```
 
-This experiment compares unrestricted, linear, and ring connectivity configurations and saves the routing metrics to `results/tables/routing_analysis_results.csv`.
+These scripts regenerate the classical results, QAOA simulation results, processor-routing metrics, consolidated table, and figures. Review the output files before committing any regenerated results.
 
-**3. View the saved routing results (optional)**
+Older scripts in the `src` directory may perform separate illustrative routing experiments. Their results should not be mixed with the six-vertex Processor A and Processor B benchmark unless the differences in experimental setup are clearly explained.
 
-Run this after the routing analysis:
+## Reproducibility and Limitations
 
-```powershell
-python src\routing_comparison.py
-```
+* The three graph instances are team-created practice inputs, not official fixed benchmark instances.
+* QAOA results depend on parameter values, shot count, simulator seed, circuit construction, and software versions.
+* The parameter search is a coarse grid and does not guarantee globally optimal parameters.
+* Processor metrics are transpilation outputs; no actual quantum hardware execution is claimed.
+* Processor A cannot directly accommodate six logical qubits through a one-to-one mapping because it has only five physical qubits.
+* Processor noise parameters must be verified against the official Challenge Kit before making noise-related claims.
+* A clean-environment reproduction test and final submission review remain necessary.
+* The repository still needs a submission entry point (`main.py` or `main.ipynb`) and a final report or analysis artifact if required by the organizer checklist.
 
-**4. Run additional comparisons (optional)**
+## Team Information
 
-```powershell
-python src\creating_comparison.py
-python src\swap_analysis.py
-```
+**Team Name:** NexGen Minds
 
-These scripts provide additional practice analyses. Results are simulator and transpiler outputs, not official hardware benchmarks.
-
-## 🔬 Reproducibility and Limitations
-
-* The graph and connectivity experiments are illustrative practice inputs.
-* Results depend on circuit settings, transpiler configuration, seeds, and software versions.
-* Routing comparisons are meaningful only when the circuits and experimental conditions are comparable.
-* The unrestricted baseline is not a direct hardware-to-hardware comparison.
-* No official hackathon processor execution or benchmark result is claimed.
-* The official challenge kit, once available, must determine the final inputs, processor definitions, constraints, and evaluation metrics.
-
-## 👥 Team
-
-**NexGen Minds**
-
-## 📌 Project Status
-
-Quantum optimization practice project for preparation for **Qiskit Fall Fest SRMAP 2026 — PS-O1: Max-Cut on Weighted Graphs**.
-
-The project will be updated with official challenge specifications and validated benchmark results when available.
+**Challenge:** Qiskit Fall Fest SRMAP 2026 — PS-O1: Max-Cut on Weighted Graphs
