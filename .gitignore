@@ -9,3 +9,6 @@ dist/
 
 # Local documentation backups
 README.backup.md
+# Jupyter temporary files
+.ipynb_checkpoints/
+Untitled.ipynb
