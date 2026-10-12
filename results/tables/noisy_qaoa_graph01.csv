@@ -1,0 +1,2 @@
+graph_id,dataset_status,gamma,beta,shots,single_qubit_depolarizing_p,cx_depolarizing_p,readout_bit_flip_p,transpiled_depth,transpiled_total_gates,transpiled_cx_count,average_cut,best_sampled_cut,known_classical_optimum,optimal_sample_probability,status
+graph_01,team-created example; not official fixed graph,0.1,0.3,4096,0.001,0.005,0.01,36,84,20,18.945556640625,26,26,0.117919921875,Noisy Aer simulation; prescribed gate/readout error rates; not hardware execution
