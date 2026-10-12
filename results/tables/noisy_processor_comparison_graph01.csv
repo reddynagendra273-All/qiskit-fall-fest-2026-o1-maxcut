@@ -1,0 +1,3 @@
+graph_id,dataset_status,processor,physical_qubits_available,gamma,beta,shots,single_qubit_depolarizing_p,cx_depolarizing_p,readout_bit_flip_p,transpiled_depth,transpiled_total_gates,transpiled_cx_count,transpiled_explicit_swap_count,average_cut,best_sampled_cut,known_classical_optimum,optimal_sample_probability,status
+graph_01,team-created example; not official fixed graph,Processor B,9,0.1,0.3,4096,0.001,0.005,0.01,124,224,41,0,18.585205078125,26,26,0.105712890625,Noisy Aer simulation; not hardware execution
+graph_01,team-created example; not official fixed graph,Processor D,6,0.1,0.3,4096,0.001,0.005,0.01,36,84,20,0,18.945556640625,26,26,0.117919921875,Noisy Aer simulation; not hardware execution
