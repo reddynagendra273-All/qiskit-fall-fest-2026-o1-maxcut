@@ -8,11 +8,13 @@ from qiskit.transpiler import CouplingMap
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_FILE = ROOT / "data" / "raw" / "maxcut_instances.json"
-OUT = ROOT / "results" / "tables" / "processor_routing_comparison.csv"
+OUT = ROOT / "results" / "tables" / "processor_routing_graph01_comparison.csv"
+
 
 PROCESSOR_FILES = {
     "Processor A": ROOT / "processors" / "processor_A.json",
     "Processor B": ROOT / "processors" / "processor_B.json",
+    "Processor D": ROOT / "processors" / "processor_D.json",
 }
 
 GAMMA = 0.1
@@ -54,6 +56,8 @@ def main():
     rows = []
 
     for graph in dataset["graphs"]:
+        if graph["id"] != "graph_01":
+            continue
         graph_id = graph["id"]
         num_vertices = dataset["num_vertices"]
         edges = [tuple(edge) for edge in graph["edges"]]

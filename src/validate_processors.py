@@ -7,7 +7,11 @@ REQUIRED_LOGICAL_QUBITS = 6
 
 
 def main():
-    for filename in ("processor_A.json", "processor_B.json"):
+    for filename in (
+    "processor_A.json",
+    "processor_B.json",
+    "processor_D.json",
+):
         path = ROOT / "processors" / filename
 
         with path.open("r", encoding="utf-8-sig") as file:
