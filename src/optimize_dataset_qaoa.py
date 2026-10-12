@@ -10,7 +10,7 @@ DATA_PATH = ROOT / "data" / "raw" / "maxcut_instances.json"
 OPTIMA_PATH = ROOT / "results" / "tables" / "classical_optima.csv"
 OUTPUT_PATH = ROOT / "results" / "tables" / "qaoa_optimization.csv"
 
-SHOTS = 2048
+SHOTS = 4096
 SEED = 42
 
 # Coarse grid first; refine later around the best candidates.

@@ -1,4 +1,4 @@
 graph_id,classical_optimum,optimal_bitstring,optimal_assignments_count,qaoa_gamma,qaoa_beta,qaoa_shots,qaoa_best_sampled_cut,qaoa_average_cut,qaoa_average_approximation_ratio,qaoa_best_sampled_approximation_ratio,qaoa_optimal_cut_probability,processor_a_mapping_feasible,processor_b_mapping_feasible,processor_b_depth,processor_b_total_gates,processor_b_cx_count,processor_b_explicit_swap_count,measurement_note
-graph_01,26,011001,2,0.1,0.3,2048,26,19.3081,0.7426,1.0,0.135742,False,True,79,157,35,0,QAOA simulator and ideal transpilation; not hardware measurements
-graph_02,27,010101,2,0.1,0.3,2048,27,19.1533,0.7094,1.0,0.125977,False,True,89,169,38,0,QAOA simulator and ideal transpilation; not hardware measurements
-graph_03,24,001100,4,0.1,0.3,2048,24,19.2256,0.8011,1.0,0.183105,False,True,104,191,42,0,QAOA simulator and ideal transpilation; not hardware measurements
+graph_01,26,011001,2,0.1,0.3,4096,26,19.3484,0.7442,1.0,0.131592,False,True,123,218,41,0,QAOA simulator and ideal transpilation; not hardware measurements
+graph_02,27,010101,2,0.1,0.3,4096,27,19.155,0.7094,1.0,0.133789,False,True,124,213,38,0,QAOA simulator and ideal transpilation; not hardware measurements
+graph_03,24,001100,4,0.1,0.3,4096,24,19.2749,0.8031,1.0,0.194092,False,True,139,270,47,0,QAOA simulator and ideal transpilation; not hardware measurements

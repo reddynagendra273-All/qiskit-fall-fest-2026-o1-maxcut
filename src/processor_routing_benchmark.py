@@ -19,6 +19,8 @@ GAMMA = 0.1
 BETA = 0.3
 BASIS_GATES = ["rz", "sx", "x", "cx"]
 SEED = 42
+SHOTS = 4096
+OPTIMIZATION_LEVEL = 1
 
 
 def load_json(path):
@@ -95,12 +97,13 @@ def main():
 
             try:
                 compiled = transpile(
-                    circuit,
-                    basis_gates=BASIS_GATES,
-                    coupling_map=coupling,
-                    initial_layout=list(range(num_vertices)),
-                    optimization_level=3,
-                    seed_transpiler=SEED,
+                circuit,
+                basis_gates=BASIS_GATES,
+                coupling_map=coupling,
+                initial_layout=list(range(num_vertices)),
+                optimization_level=OPTIMIZATION_LEVEL,
+                seed_transpiler=SEED,
+                routing_method="sabre",
                 )
 
                 operations = compiled.count_ops()

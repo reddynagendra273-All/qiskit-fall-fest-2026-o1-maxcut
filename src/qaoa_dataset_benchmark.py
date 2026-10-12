@@ -12,7 +12,7 @@ OUTPUT_PATH = ROOT / "results" / "tables" / "qaoa_dataset_results.csv"
 
 GAMMA = 0.5
 BETA = 0.3
-SHOTS = 2048
+SHOTS = 4096
 SEED = 42
 
 with DATA_PATH.open("r", encoding="utf-8-sig") as f:
