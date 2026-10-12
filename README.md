@@ -4,18 +4,20 @@
 
 ## Project Overview
 
-This project explores the Quantum Approximate Optimization Algorithm (QAOA) for weighted Max-Cut problems and investigates how processor connectivity affects quantum-circuit transpilation.
+This project explores the Quantum Approximate Optimization Algorithm (QAOA) for weighted Max-Cut problems. It investigates how processor connectivity affects circuit transpilation and evaluates a proposed workload-aware processor architecture using ideal transpilation metrics and noisy quantum-circuit simulation.
 
-**Project status:** Practice simulations and ideal transpilation experiments. No actual quantum hardware measurements are claimed.
+**Project status:** Classical reference calculations, QAOA simulations, ideal transpilation experiments, and noisy Aer simulations have been performed. No actual quantum hardware measurements are claimed.
 
 ## Objectives
 
 * Compute exact classical Max-Cut solutions using brute force.
 * Construct and simulate p=1 QAOA circuits.
 * Search for promising QAOA parameters using a coarse grid.
-* Compare the feasibility and transpilation metrics of Processor A and Processor B.
+* Compare processor feasibility and transpilation metrics.
 * Analyze circuit depth, total gate count, CX count, and explicit SWAP count.
-* Document limitations and identify future noise-aware experiments.
+* Evaluate noisy simulation results using a consistent gate-noise model.
+* Investigate a proposed workload-aware architecture, Processor D.
+* Document limitations and provide reproducible experiment scripts.
 
 ## Dataset and Classical Results
 
@@ -38,8 +40,10 @@ The parameter-grid search evaluates 32 combinations per graph using 4,096 shots.
 | Graph    | Gamma | Beta | Classical optimum | Best sampled cut | Average cut weight | Average approximation ratio | Best sampled ratio | Optimal-cut probability |
 | -------- | ----: | ---: | ----------------: | ---------------: | -----------------: | --------------------------: | -----------------: | ----------------------: |
 | graph_01 |   0.1 |  0.3 |                26 |               26 |            19.3484 |                      0.7442 |             1.0000 |                0.131592 |
-| graph_02 |   0.1 |  0.3 |                27 |               27 |            19.1550 |                      0.7094 |             1.0000 |                0.133789 |
+| graph_02 |   0.1 |  0.3 |                27 |               27 |            19.1550 |                      0.7094 |            0.7094* |                0.133789 |
 | graph_03 |   0.1 |  0.3 |                24 |               24 |            19.2749 |                      0.8031 |             1.0000 |                0.194092 |
+
+*Verify the graph_02 best sampled ratio against the original result file before final submission; the previously recorded value should not be silently changed.
 
 The average approximation ratio is the average sampled cut weight divided by the exact classical optimum. The best sampled approximation ratio refers to the highest cut weight observed in the samples; it is not the average ratio.
 
@@ -49,41 +53,98 @@ These results describe simulator experiments, not hardware performance.
 
 ## Processor Architectures
 
-Processor definitions are stored in `processors/processor_A.json` and `processors/processor_B.json`.
+Processor definitions are stored in the `processors/` directory.
 
 ### Processor A
 
 * Physical qubits: 5
-* Coupling edges: (0,1), (1,2), (2,3), (3,4)
+* Coupling edges: `(0,1), (1,2), (2,3), (3,4)`
 * Direct one-to-one mapping of all six logical qubits is infeasible because only five physical qubits are available.
 
 ### Processor B
 
 * Physical qubits: 9
-* Coupling edges: (0,1), (1,2), (2,3), (2,4), (4,5), (5,6), (4,7), (7,8)
+* Coupling edges: `(0,1), (1,2), (2,3), (2,4), (4,5), (5,6), (4,7), (7,8)`
 * A direct mapping is feasible by qubit count. This does not, by itself, prove that every circuit interaction can be implemented without routing overhead.
 
-### Processor B Transpilation Results
+### Processor D
 
-| Graph    | Circuit depth | Total gates | CX count | Explicit SWAP count |
-| -------- | ------------: | ----------: | -------: | ------------------: |
-| graph_01 |           123 |         218 |       41 |                   0 |
-| graph_02 |           124 |         213 |       38 |                   0 |
-| graph_03 |           139 |         270 |       47 |                   0 |
+* Physical qubits: 6
+* Coupling edges: `(0,1), (0,2), (0,5), (1,2), (1,3), (2,3), (2,4), (3,4), (3,5), (4,5)`
+* Proposed workload-aware architecture designed for the six-qubit `graph_01` practice instance.
+* This is a synthetic topology for routing studies, not a real quantum processor.
+* Its potential advantage must be evaluated against the chosen graph and benchmark settings; it should not be assumed to generalize to other workloads.
 
-These metrics are from the current ideal transpilation setup. They are not quantum hardware measurements.
+The Processor D definition is stored in `processors/processor_D.json`.
 
-An explicit SWAP count of zero does not prove that routing added no overhead. Routing and gate decomposition can affect depth and gate counts without leaving explicit SWAP instructions in the final circuit.
+## Ideal Transpilation Results
 
-The processor comparison is stored in `results/tables/processor_routing_comparison.csv`. Consolidated results are stored in `results/tables/consolidated_benchmark.csv`.
+The existing routing benchmark evaluates `graph_01` for the current Processor A, B, and D configurations.
 
-**Noise-model status:** Processor noise parameters have not yet been verified as implemented in this repository. Do not interpret the results above as noise-aware benchmark results.
+| Processor   | Physical qubits | Circuit depth | Total gates | CX count | Explicit SWAP count |
+| ----------- | --------------: | ------------: | ----------: | -------: | ------------------: |
+| Processor A |               5 |    Infeasible |           — |        — |                   — |
+| Processor B |               9 |           123 |         218 |       41 |                   0 |
+| Processor D |               6 |            35 |          78 |       20 |                   0 |
 
-## Figures
+These metrics come from the ideal transpilation experiment. They are not quantum hardware measurements.
 
-* `results/figures/maxcut_graph.png` — visualization of a practice Max-Cut graph.
-* `results/figures/qaoa_approximation_ratios.png` — comparison of QAOA approximation ratios.
-* `results/figures/processor_b_circuit_cost.png` — comparison of Processor B circuit-cost metrics.
+For this particular run, Processor D had approximately 71.5% lower circuit depth and 51.2% fewer CX gates than Processor B. These are results for one team-created graph, one parameter setting, and one transpilation configuration—not a universal performance guarantee.
+
+An explicit SWAP count of zero does not establish zero routing overhead. Routing, layout selection, and gate decomposition can affect depth and gate counts without leaving explicit SWAP instructions in the final circuit.
+
+The graph-specific routing results are stored in `results/tables/processor_routing_graph01_comparison.csv`.
+
+## Noisy QAOA Simulation
+
+Noisy simulation uses Qiskit Aer with the following error settings:
+
+| Error type                       | Configured probability |
+| -------------------------------- | ---------------------: |
+| Single-qubit depolarizing error  |                  0.001 |
+| CX depolarizing error            |                  0.005 |
+| Symmetric readout bit-flip error |                   0.01 |
+
+The benchmark uses 4,096 shots and fixed QAOA parameters `gamma = 0.1` and `beta = 0.3`.
+
+### Preliminary noisy result for graph_01
+
+| Metric                  |  Result |
+| ----------------------- | ------: |
+| Circuit depth           |      36 |
+| Total gates             |      84 |
+| CX count                |      20 |
+| Average cut weight      | 18.9456 |
+| Best sampled cut        |      26 |
+| Classical optimum       |      26 |
+| Optimal-cut probability |  11.79% |
+
+This preliminary run is a generic gate-noise simulation and is not a processor-specific hardware result.
+
+The script is `src/noisy_qaoa_graph01.py`. Its output is `results/tables/noisy_qaoa_graph01.csv`.
+
+### Noisy Processor B vs. Processor D comparison
+
+The topology-aware comparison uses the same practice graph, QAOA parameters, gate-noise rates, shot count, and transpilation settings for both processor configurations.
+
+| Metric                  | Processor B | Processor D |
+| ----------------------- | ----------: | ----------: |
+| Physical qubits         |           9 |           6 |
+| Circuit depth           |         124 |          36 |
+| Total gates             |         224 |          84 |
+| CX count                |          41 |          20 |
+| Explicit SWAP count     |           0 |           0 |
+| Average cut weight      |     18.5852 |     18.9456 |
+| Best sampled cut        |          26 |          26 |
+| Optimal-cut probability |      10.57% |      11.79% |
+
+In this run, Processor D had approximately 71.0% lower circuit depth and 51.2% fewer CX gates than Processor B. Its average cut weight was approximately 0.36 higher, and its optimal-cut probability was approximately 1.22 percentage points higher.
+
+These findings are consistent with a potential advantage from the proposed topology for this particular workload. They do not prove that connectivity alone caused the difference or that Processor D would outperform Processor B on other graphs or actual hardware.
+
+The comparison script is `src/noisy_processor_comparison.py`. Its output is `results/tables/noisy_processor_comparison_graph01.csv`.
+
+**Noise-model limitation:** The configured error rates are simulation assumptions. The results are not calibrated predictions of a physical device. Further validation should check the exact noise-model requirements in the official challenge materials, repeat experiments with appropriate seeds, and evaluate additional official benchmark instances.
 
 ## Project Structure
 
@@ -94,16 +155,25 @@ maxcut-practice/
 │       └── maxcut_instances.json
 ├── processors/
 │   ├── processor_A.json
-│   └── processor_B.json
+│   ├── processor_B.json
+│   └── processor_D.json
 ├── results/
 │   ├── figures/
 │   └── tables/
+│       ├── classical_optima.csv
+│       ├── qaoa_optimization.csv
+│       ├── qaoa_dataset_results.csv
+│       ├── processor_routing_graph01_comparison.csv
+│       ├── noisy_qaoa_graph01.csv
+│       └── noisy_processor_comparison_graph01.csv
 ├── src/
 │   ├── maxcut_classical.py
 │   ├── maxcut_qaoa.py
 │   ├── optimize_dataset_qaoa.py
 │   ├── qaoa_dataset_benchmark.py
 │   ├── processor_routing_benchmark.py
+│   ├── noisy_qaoa_graph01.py
+│   ├── noisy_processor_comparison.py
 │   ├── consolidate_results.py
 │   └── plot_benchmark_results.py
 ├── requirements.txt
@@ -111,11 +181,11 @@ maxcut-practice/
 └── README.md
 ```
 
-Additional practice scripts and result files are included in `src/` and `results/`.
+Other practice scripts and result files may also be present in the repository.
 
 ## Requirements
 
-The working environment used for the latest experiments includes:
+The environment used for the latest experiments includes:
 
 * Python 3.14.7
 * Qiskit 2.5.2
@@ -133,7 +203,6 @@ Run these commands from PowerShell:
 ```powershell
 git clone https://github.com/reddynagendra273-All/qiskit-fall-fest-2026-o1-maxcut.git
 cd qiskit-fall-fest-2026-o1-maxcut
-
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
@@ -141,31 +210,35 @@ python -m pip install -r requirements.txt
 
 If the virtual environment already exists, activate it rather than creating another one.
 
-## Running the Dataset Experiments
+## Running Experiments
 
-Run from the repository root:
+Run commands from the repository root. If the virtual environment is active, use `python`; otherwise, use the interpreter inside `.venv`.
 
 ```powershell
-.\.venv\Scripts\python.exe src\maxcut_classical.py
-.\.venv\Scripts\python.exe src\qaoa_dataset_benchmark.py
-.\.venv\Scripts\python.exe src\optimize_dataset_qaoa.py
-.\.venv\Scripts\python.exe src\processor_routing_benchmark.py
-.\.venv\Scripts\python.exe src\consolidate_results.py
-.\.venv\Scripts\python.exe src\plot_benchmark_results.py
+python .\src\maxcut_classical.py
+python .\src\qaoa_dataset_benchmark.py
+python .\src\optimize_dataset_qaoa.py
+python .\src\processor_routing_benchmark.py
+python .\src\noisy_qaoa_graph01.py
+python .\src\noisy_processor_comparison.py
+python .\src\consolidate_results.py
+python .\src\plot_benchmark_results.py
 ```
 
-Review regenerated outputs before committing them. Older scripts may run separate illustrative experiments and should not be mixed with the six-vertex benchmark unless their differences are documented.
+Review regenerated outputs before committing them. Some scripts overwrite their output CSV files. Older scripts may run separate illustrative experiments and should not be mixed with the six-vertex benchmark unless their differences are documented.
 
 ## Limitations and Future Work
 
 * The three graphs are team-created practice inputs, not official fixed benchmark instances.
 * The parameter search is a coarse grid and does not guarantee globally optimal parameters.
 * Processor A cannot directly map all six logical qubits onto five physical qubits using a one-to-one mapping.
-* Transpilation metrics are not hardware results.
+* Processor D is a proposed synthetic topology, not a physical processor.
+* Transpilation and Aer simulation metrics are not hardware results.
 * A zero explicit SWAP count does not establish zero routing overhead.
-* Processor noise parameters and noise-aware results require implementation and verification.
-* A reproducible notebook, final technical report, and clean-environment reproduction test remain to be completed if required by the organizer's submission checklist.
-* Processor D requirements must be checked against the official challenge materials before finalizing the architecture design.
+* The noise model uses configured error rates rather than calibration data from a real device.
+* The current processor comparison focuses on `graph_01`; broader evaluation is required before drawing general conclusions.
+* Official benchmark instances, organizer settings, and final architecture requirements must be checked against the released challenge materials before claiming full compliance.
+* A final technical report, reproducibility checks, and any required submission artifacts should be completed before submission.
 
 ## Team Information
 
