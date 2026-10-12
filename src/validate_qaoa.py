@@ -1,71 +1,108 @@
 ﻿
-# PRACTICE ONLY â€” NOT OFFICIAL HACKATHON DATA
-# Validate the best p=1 QAOA parameters
+import csv
+import json
+from pathlib import Path
 
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 
-edges = [
-    (0, 1, 3),
-    (0, 2, 2),
-    (1, 2, 1),
-    (1, 3, 4),
-    (2, 4, 2),
-    (3, 4, 3),
-]
+ROOT = Path(__file__).resolve().parent.parent
+DATASET_PATH = ROOT / "data" / "raw" / "maxcut_instances.json"
+OPTIMA_PATH = ROOT / "results" / "tables" / "classical_optima.csv"
 
-n = 5
-gamma = 0.26
-beta = 0.38
-shots = 10000
+GAMMA = 0.1
+BETA = 0.3
+SHOTS = 2048
+SEED = 42
 
-simulator = AerSimulator()
 
-def cut_weight(bitstring):
-    bits = bitstring[::-1]
+def calculate_cut(bitstring, edges):
+    bits = bitstring.replace(" ", "")[::-1]
     return sum(
         weight
         for u, v, weight in edges
         if bits[u] != bits[v]
     )
 
-qc = QuantumCircuit(n, n)
 
-for q in range(n):
-    qc.h(q)
+def main():
+    with DATASET_PATH.open("r", encoding="utf-8-sig") as file:
+        dataset = json.load(file)
 
-for u, v, weight in edges:
-    qc.rzz(-gamma * weight, u, v)
+    with OPTIMA_PATH.open(
+        "r", encoding="utf-8-sig", newline=""
+    ) as file:
+        optima = {
+            row["graph_id"]: int(row["classical_optimum"])
+            for row in csv.DictReader(file)
+        }
 
-for q in range(n):
-    qc.rx(2 * beta, q)
+    simulator = AerSimulator()
 
-qc.measure(range(n), range(n))
+    for graph in dataset["graphs"]:
+        graph_id = graph["id"]
+        edges = graph["edges"]
+        n = dataset["num_vertices"]
 
-result = simulator.run(
-    qc,
-    shots=shots,
-    seed_simulator=42
-).result()
+        qc = QuantumCircuit(n, n)
 
-counts = result.get_counts()
+        for q in range(n):
+            qc.h(q)
 
-average = sum(
-    cut_weight(bits) * count
-    for bits, count in counts.items()
-) / shots
+        for u, v, weight in edges:
+            qc.rzz(-GAMMA * weight, u, v)
 
-best_bitstring = max(counts, key=lambda bits: cut_weight(bits))
-best_cut = cut_weight(best_bitstring)
+        for q in range(n):
+            qc.rx(2 * BETA, q)
 
-print("PRACTICE QAOA VALIDATION")
-print("-" * 35)
-print(f"Gamma: {gamma}")
-print(f"Beta: {beta}")
-print(f"Shots: {shots}")
-print(f"Average cut weight: {average:.3f}")
-print(f"Best bitstring: {best_bitstring}")
-print(f"Best observed cut: {best_cut}")
-print("Classical optimum: 13")
-print("Practice simulator results only.")
+        qc.measure(range(n), range(n))
 
+        result = simulator.run(
+            qc,
+            shots=SHOTS,
+            seed_simulator=SEED,
+        ).result()
+
+        counts = result.get_counts()
+        cut_weights = {
+            bits: calculate_cut(bits, edges)
+            for bits in counts
+        }
+
+        average = sum(
+            cut_weights[bits] * count
+            for bits, count in counts.items()
+        ) / SHOTS
+
+        best_bitstring = max(
+            cut_weights, key=cut_weights.get
+        )
+        best_cut = cut_weights[best_bitstring]
+        optimum = optima[graph_id]
+
+        print(f"\n{graph_id}")
+        print("-" * 35)
+        print(f"Gamma: {GAMMA}")
+        print(f"Beta: {BETA}")
+        print(f"Shots: {SHOTS}")
+        print(f"Average cut weight: {average:.4f}")
+        print(f"Best bitstring: {best_bitstring}")
+        print(f"Best observed cut: {best_cut}")
+        print(f"Classical optimum: {optimum}")
+        print(f"Best sampled ratio: {best_cut / optimum:.4f}")
+        print(
+            "Validation:",
+            "PASS" if best_cut <= optimum else "FAIL",
+        )
+
+        if best_cut > optimum:
+            raise AssertionError(
+                f"{graph_id}: sampled cut exceeds classical optimum"
+            )
+
+    print("\nQAOA validation completed.")
+    print("AerSimulator results only; no hardware execution.")
+
+
+if __name__ == "__main__":
+    main()
