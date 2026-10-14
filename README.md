@@ -237,7 +237,7 @@ Review regenerated outputs before committing them. Some scripts overwrite their 
 * A zero explicit SWAP count does not establish zero routing overhead.
 * The noise model uses configured error rates rather than calibration data from a real device.
 * The current processor comparison focuses on `graph_01`; broader evaluation is required before drawing general conclusions.
-* Official benchmark instances, organizer settings, and final architecture requirements must be checked against the released challenge materials before claiming full compliance.
+* * The official PS-O1 instance and generic QAOA simulator benchmark are included separately from the three practice graphs. The official benchmark is not a Processor A/B hardware result; processor-specific conclusions must be based on the documented transpilation and routing metrics.
 * A final technical report, reproducibility checks, and any required submission artifacts should be completed before submission.
 
 ## Team Information
