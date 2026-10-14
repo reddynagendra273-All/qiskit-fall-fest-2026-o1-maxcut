@@ -1,0 +1,68 @@
+{
+  "dataset_name": "Qiskit Fall Fest 2026 Phase 1 PS-O1 Official Instance",
+  "source": "Graph generated with the parameters specified in the Phase 1 guide",
+  "graph_generation": {
+    "method": "networkx.erdos_renyi_graph",
+    "n": 6,
+    "p": 0.5,
+    "seed": 42
+  },
+  "weight_assignment": {
+    "method": "Python random.Random().randint(1, 5)",
+    "seed": 42,
+    "note": "Weight seed is a documented reproducibility choice, not a guide-specified requirement."
+  },
+  "num_vertices": 6,
+  "graphs": [
+    {
+      "id": "official_graph_01",
+      "edges": [
+        [
+          0,
+          2,
+          1
+        ],
+        [
+          0,
+          3,
+          1
+        ],
+        [
+          0,
+          4,
+          3
+        ],
+        [
+          1,
+          4,
+          2
+        ],
+        [
+          1,
+          5,
+          2
+        ],
+        [
+          2,
+          3,
+          2
+        ],
+        [
+          2,
+          4,
+          1
+        ],
+        [
+          3,
+          4,
+          5
+        ],
+        [
+          3,
+          5,
+          1
+        ]
+      ]
+    }
+  ]
+}

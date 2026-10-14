@@ -1,0 +1,2 @@
+graph_id,gamma,beta,shots,classical_optimum,best_sampled_cut,average_cut,average_approximation_ratio,best_sampled_approximation_ratio,optimal_cut_probability
+official_graph_01,0.3,0.3,4096,16,16,11.6611,0.7288,1.0,0.14209
