@@ -12,3 +12,14 @@ README.backup.md
 # Jupyter temporary files
 .ipynb_checkpoints/
 Untitled.ipynb
+# Phase 2 local virtual environments
+.venv-phase2/
+.venv/
+# Morph IDE local files
+.morph/
+
+# Local backup copies
+*_backup*
+*_before_*
+README_before_readme_repair.md
+report_backup_before_cleanup.md

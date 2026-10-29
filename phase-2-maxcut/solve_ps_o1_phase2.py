@@ -71,20 +71,30 @@ def ideal_expected_cut(gamma, beta):
         for index, prob in enumerate(probs)
     ))
 
+
 def counts_summary(counts):
     total = sum(counts.values())
     cut_sum = 0.0
     best_cut = 0.0
     optimal_count = 0
+
     for key, count in counts.items():
         bits_tuple = official.counts_to_x(key)
         bits = "".join(map(str, bits_tuple))
         score = cut_weight(bits_tuple)
+
         cut_sum += score * count
         best_cut = max(best_cut, score)
+
         if bits in OPTIMAL_SET:
             optimal_count += count
+
     mean_cut = cut_sum / total
+    most_frequent_key = max(counts, key=counts.get)
+    most_frequent_bits = "".join(
+        map(str, official.counts_to_x(most_frequent_key))
+    )
+
     return {
         "shots": total,
         "mean_cut": mean_cut,
@@ -92,9 +102,10 @@ def counts_summary(counts):
         "approx_ratio": mean_cut / C_STAR,
         "best_approx_ratio": best_cut / C_STAR,
         "p_opt": optimal_count / total,
-        "most_frequent_bitstring": max(counts, key=counts.get),
+        "most_frequent_bitstring": most_frequent_bits,
         "counts": counts,
     }
+
 
 print("=" * 68)
 print("QFF 2026 PHASE 2 — PS-O1 WEIGHTED MAX-CUT")
