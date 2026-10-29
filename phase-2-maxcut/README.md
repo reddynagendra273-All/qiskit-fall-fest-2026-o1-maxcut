@@ -1,24 +1,50 @@
-# QFF 2026 Phase 2 — Quantum Optimization Track: Starter Pack
+##### \# QFF 2026 Phase 2 - PS-O1 Weighted Max-Cut
 
-Read first: `QFF2026_Optimization_Challenge_Kit.docx` (locked instances, official settings, Processor A/B/D rules, Bell-state procedure, metric definitions, submission and judging rules). Where the kit and `OPTIMISATION_PS.docx` differ, the kit governs.
 
-## Setup (Python 3.10–3.12)
-```
-python -m venv opt-env
-opt-env\Scripts\activate            # Windows
-source opt-env/bin/activate         # macOS / Linux
-pip install -r requirements.txt
-python example_usage.py             # must finish and print "Processor D rule check: OK"
-```
-Expected output of `example_usage.py` (template Processor D): ideal Bell F = 1.0000, noisy Bell F ≈ 0.963; Processor A prints "not executable (needs 6 qubits > 5)" for PS-O1 — this is correct (capacity rule, kit Section 3).
+##### This folder contains our Phase 2 implementation and benchmark results for PS-O1, a weighted Max-Cut optimization problem. The project uses the Quantum Approximate Optimization Algorithm (QAOA), classical parameter optimization, processor-topology analysis, and ideal/noisy simulator experiments.
 
-## Files
-| File | What it is |
-|---|---|
-| `qff_phase2.py` | Official settings, Processors A/B, noise model, `validate_processor_d()`, `circuit_metrics()`, `bell_experiment()`, `counts_to_x()` — keep unchanged and copy into your repo |
-| `instances.json` | Locked data for PS-O1 (graph), PS-O2 (returns, risk matrix, q, k, λ sweep), PS-O3 (items, capacity, slack encoding, P) |
-| `processor_D_template.json` | Processor D file format — copy to `processors/processor_D.json` in your repo and edit. The 3×3 grid is only a format example |
-| `example_usage.py` | Shows the official measurement workflow; does not solve any problem statement |
 
-## Submission
-Public GitHub repository URL on the hackathon portal before **5:40 PM IST on Day 2** (layout: kit Section 10). Questions: Optimization track help desk at the venue (clarifications in the first 2 hours of the hackathon) or qiskitfallfest@srmap.edu.in.
+##### \## 1. Problem Summary
+
+
+##### The problem instance contains six logical vertices and nine weighted edges, with a total edge weight of 27.
+
+
+##### Exhaustive evaluation of all 64 possible bitstrings gives an exact classical optimum cut weight of \*\*22\*\*. Under the project's stated bitstring convention, the optimal bitstrings are `001011` and `110100`, representing complementary partitions.
+
+
+##### \## 2. Benchmark Results
+
+
+##### The following results were recorded for the executable processor configurations.
+
+
+##### | Processor | Condition | Mean Cut | Approximation Ratio | CX Gates | Circuit Depth | SWAPs |
+
+##### |---|---|---:|---:|---:|---:|---:|
+
+##### | B | Ideal | 17.76196 | 0.80736 | 21 | 37 | 1 |
+
+##### | B | Noisy | 17.32202 | 0.78736 | 21 | 37 | 1 |
+
+##### | D | Ideal | 17.71338 | 0.80515 | 18 | 29 | 0 |
+
+##### | D | Noisy | 17.29614 | 0.78619 | 18 | 29 | 0 |
+
+
+##### The approximation ratio is calculated as the mean cut divided by the exact classical optimum of 22.
+
+
+##### Processor A is not executable for this instance because it provides five physical qubits, while the problem requires six logical qubits.
+
+
+##### All values are results from simulation, not measurements from physical quantum hardware. In this run, Processor D uses three fewer transpiled CX gates than Processor B, requires no inserted SWAP gates, and has a lower circuit depth. Processor B has a slightly higher noisy mean cut in this particular simulation, so circuit efficiency and solution quality should be considered separately.
+
+
+##### \## 3. Classical and Random Baselines
+
+
+##### The exact classical optimum is 22.
+
+
+##### For a uniformly random bipartition, each edge has a probability of 0.
